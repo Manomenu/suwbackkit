@@ -5,13 +5,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Update="Suwgate.Architecture" IncludeAssets="all" />
+    <PackageReference Include="Suwgate.Database" />
     <PackageReference Include="xunit.v3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Suwbackkit.Gate.Code" />
-    <Using Include="Suwbackkit.Gate.Repository" />
+    <ProjectReference Include="../../src/Suwbackkit.Postgres/Suwbackkit.Postgres.csproj" />
+    <ProjectReference Include="../../src/Suwbackkit.Server/Suwbackkit.Server.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 </Project>
