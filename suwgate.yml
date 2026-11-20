@@ -1,0 +1,34 @@
+profiles: [dotnet, database]
+steps:
+  add:
+    - name: dotnet-pack
+      title: every project under src/ packs into a .nupkg and a .snupkg that do not depend on suwgate (dotnet pack)
+      after: [dotnet-build]
+      run: |
+        set -euo pipefail
+        rm -rf artifacts/packages
+        for project in src/*/*.csproj; do
+          name="$(basename "$project" .csproj)"
+          dotnet pack "$project" -c Release --no-restore --nologo -v quiet
+          for extension in nupkg snupkg; do
+            compgen -G "artifacts/packages/$name.[0-9]*.$extension" >/dev/null || {
+              echo "$project gave no .$extension in artifacts/packages: every project under src/ is a package with symbols (src/Directory.Build.props)" >&2
+              exit 1
+            }
+          done
+        done
+        for package in artifacts/packages/*.nupkg; do
+          if unzip -p "$package" '*.nuspec' | grep -q 'id="Suwgate\.'; then
+            echo "$package depends on suwgate: reference Suwgate.* with PrivateAssets=\"all\"; suwgate checks the kit at build and test time and never ships in a package" >&2
+            exit 1
+          fi
+        done
+exceptions:
+  - guard: required-files
+    target: compose.yaml
+    reason: the PostgreSQL tests start their own postgres with Testcontainers, so there is no compose database to describe
+settings:
+  hooks:
+    protected: [tests/Suwbackkit.Gate/**]
+  docs-paths:
+    ignore: [appsettings.json, artifacts/]

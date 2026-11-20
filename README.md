@@ -1,6 +1,6 @@
 # suwbackkit
 
-Shared .NET building blocks for the backends of our apps, as NuGet packages. Checked by `just check` today, by `suwgate check` once it is published.
+Shared .NET building blocks for the backends of our apps, as NuGet packages. Checked by [suwgate](https://github.com/Manomenu/suwgate) (`just check`).
 
 | Package | What it gives an app |
 | --- | --- |
@@ -11,17 +11,7 @@ What comes next is in [TODO.md](TODO.md), why it is built this way in [docs/arch
 
 ## Work on it
 
-Needs the .NET SDK from `global.json`, `just`, and for the full gate `shellcheck` and `gitleaks`. The PostgreSQL tests start
-`postgres:17.11` with Testcontainers, so they need Docker, or Podman with `DOCKER_HOST` pointing at its socket; without either they are
-skipped with a message saying so, and on CI they fail.
-
-```sh
-just sync         # tools, packages from the lockfiles, git hooks
-just check        # the gate CI runs: build, csharpier, tests, pack, shellcheck, gitleaks
-just check-quick  # build, csharpier, repository guards
-just fmt          # format with CSharpier
-just pack         # packages into artifacts/packages
-```
+Setup and commands: [docs/development.md](docs/development.md). The rules for every change: [AGENTS.md](AGENTS.md).
 
 ## Release
 
@@ -32,7 +22,7 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-CI runs the gate on the tag and, once nuget.org trusted publishing is set up (see docs/architecture.md, "Publishing"), pushes every package and its symbols to nuget.org.
+CI runs the gate on the tag, packs, and, once nuget.org trusted publishing is set up (see docs/architecture.md, "Publishing"), pushes every package and its symbols to nuget.org.
 
 ## License
 

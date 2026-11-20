@@ -22,30 +22,35 @@ flowchart LR
 
 - Apps depend on suwbackkit; **suwbackkit never depends on an app**, never references one, and knows nothing of which apps use it.
 - **suwgate does not depend on suwbackkit.** suwgate checks repositories, this one included; it ships no runtime code an app needs from here, and nothing here is a dependency of it.
+- **suwbackkit uses suwgate only to be checked**: the CLI `@maniumek/suwgate` as the gate, `Suwgate.Architecture` (build defaults, with
+  `PrivateAssets="all"`) and `Suwgate.Database` in the gate's test project. A shipped package never depends on suwgate; the gate's pack
+  step fails when one does.
 - Inside the repository: a package may use another package of the kit only when the second one exists for that reason; tests depend on what they test, never the other way.
 
 ## The map
 
 - `Suwbackkit.slnx` — the .NET solution: the packages and their tests.
 - `src/` — one folder per package; everything under it is packed (`src/Directory.Build.props` holds the package metadata). Each package has its own `README.md`, which nuget.org shows.
-- `tests/` — one xUnit v3 test project per package (`<Package>.Tests`), plus `Suwbackkit.Gate`: the gate script, the repository guards and the Claude Code hooks' scripts, until suwgate replaces them (TODO.md).
+- `tests/` — one xUnit v3 test project per package (`<Package>.Tests`), plus `Suwbackkit.Gate`: the .NET guards of `Suwgate.Architecture` and `Suwgate.Database` run on the kit.
 - `docs/` — this file and the specs: drafts in `draft/spec/`, built features in `visual/spec/`.
-- `.github/workflows/ci.yml` — the gate on every push and pull request, and publishing on a version tag.
-- `.claude/` — the committed Claude Code settings: a Stop hook that runs the quick gate, and a PreToolUse hook that protects the gate, the lint configs and the lockfiles (`ALLOW_GATE_EDIT=1 claude` lifts the first two).
-- `.githooks/` — `pre-commit` runs gitleaks on what is being committed; `just sync` enables it.
+- `.github/workflows/ci.yml` — the gate (suwgate's reusable workflow) on every push and pull request, and packing and publishing on a version tag.
+- `.claude/` — the committed Claude Code settings: `suwgate hook stop` runs the quick gate after a turn, `suwgate hook guard-edit` protects the gate and the generated files (`ALLOW_GATE_EDIT=1 claude` lifts the first).
+- `.githooks/` — `pre-commit` runs `suwgate hook pre-commit` (gitleaks on what is staged, then the quick gate); `just sync` enables it.
 - `.config/` — `dotnet-tools.json`: the pinned CSharpier.
 - `.vscode/` — recommended extensions, formatter, file nesting and tasks that run the gate. No style rules: they live in `.editorconfig` and `.csharpierrc.json`.
 
-Files at the root: `Directory.Build.props` (strict compiler and analyzers, nothing packable by default), `Directory.Build.rsp`
-(no idle MSBuild workers), `Directory.Packages.props` (every package version, once, with transitive pinning),
-`BannedSymbols.txt` (APIs the build refuses, each with what to use instead), `.editorconfig`, `global.json`, `nuget.config`, `.gitattributes`, `.gitignore`.
+Files at the root: `suwgate.yml` (the gate: profiles, the pack step, exceptions with their reasons), `layers.json` (which project may
+reference which and see whose internals), `package.json`, `pnpm-lock.yaml` and `pnpm-workspace.yaml` (the suwgate CLI, the only npm
+package), `Directory.Build.props` (the target framework, warnings as errors, lock files, the `Suwgate.Architecture` build defaults,
+nothing packable by default), `Directory.Build.rsp` (no idle MSBuild workers), `Directory.Packages.props` (every package version, once,
+with transitive pinning), `.editorconfig` (whitespace only), `global.json`, `nuget.config`, `.gitattributes`, `.gitignore`.
 
 ## The packages
 
-- `Suwbackkit.Server` follows .NET Aspire's ServiceDefaults: one `AddServerDefaults()` on the builder, one `MapServerDefaults()` on the app.
+- The package `Suwbackkit.Server` follows .NET Aspire's ServiceDefaults: one `AddServerDefaults()` on the builder, one `MapServerDefaults()` on the app.
   Aspire ships it as a project inside each solution; here it is a NuGet package, so a fix reaches every app with a version bump.
   Unlike Aspire, `/health` and `/alive` are mapped in every environment, because the apps run them as container probes.
-- `Suwbackkit.Postgres` is its own package, so an app without a database pulls in neither Npgsql nor grate; it does not depend on
+- PostgreSQL lives in a package of its own, `Suwbackkit.Postgres`, so an app without a database pulls in neither Npgsql nor grate; it does not depend on
   `Suwbackkit.Server`, it only adds a check to `AddHealthChecks()`, which both share through ASP.NET Core. Dapper stays the app's choice.
 - Both reference the ASP.NET Core shared framework (`FrameworkReference Microsoft.AspNetCore.App`): every app using them is an ASP.NET Core app.
 - The public API is only what an app calls; the rest is internal and tested through `InternalsVisibleTo`.
@@ -63,7 +68,7 @@ Following the .NET library guidance and the NuGet docs:
   `PublishRepositoryUrl` writes the repository and the commit into the package.
 - Symbols ship as a separate `.snupkg` (`IncludeSymbols`, `SymbolPackageFormat=snupkg`); `dotnet nuget push` of the `.nupkg` pushes the `.snupkg` beside it.
 - Builds are deterministic (the SDK default); on GitHub Actions `ContinuousIntegrationBuild` also normalises the paths baked into the binaries.
-- `dotnet pack` writes to `artifacts/packages` (gitignored); the gate checks that each package gives both files.
+- Packing writes to `artifacts/packages` (gitignored); the gate checks that each package gives both files and depends on no suwgate package.
 
 ## Versioning
 
@@ -75,13 +80,15 @@ before the first tag, `0.1.0-alpha.0.<height>` (`MinVerMinimumMajorMinor` 0.1).
 - All packages share one version and one tag (`v*`), released together: the simplest scheme while the kit is small and its packages move together.
   When one package needs its own cadence, MinVer's documented monorepo setup applies: a `MinVerTagPrefix` per project (`server-v`, `cli-v`)
   with `MinVerIgnoreHeight`.
-- MinVer needs the full history: CI checks out with `fetch-depth: 0`.
+- MinVer needs the full history: the pack job checks out with `fetch-depth: 0` (suwgate's gate workflow does too).
 
 ## Publishing
 
-On a pushed tag `v*`, after the gate passes, the `publish` job of `ci.yml` pushes the packages the gate built to nuget.org with
-**NuGet trusted publishing**: GitHub issues the job an OIDC token, `NuGet/login` exchanges it for an API key valid one hour, and no
-long-lived key is stored anywhere. Before pushing, it checks that every package carries exactly the tag's version.
+On a pushed tag `v*`, after the gate passes, the `pack` job of `ci.yml` packs every package with the full history, and the `publish` job
+pushes them to nuget.org with **NuGet trusted publishing**: GitHub issues the job an OIDC token, NuGet's login action exchanges it for an
+API key valid one hour, and no long-lived key is stored anywhere. Before pushing, it checks that every package carries exactly the tag's
+version. Both jobs stay in `ci.yml`, not in a reusable workflow of suwgate: the nuget.org policy names this workflow file, and only
+the publish job holds `id-token: write`.
 
 The job does not run until the owner sets it up, so a tag without this setup publishes nothing:
 
@@ -93,41 +100,28 @@ The job does not run until the owner sets it up, so a tag without this setup pub
 
 ## The gate
 
-`tests/Suwbackkit.Gate/scripts/check.sh` (`just check`, and the same in CI): locked restore, build in Release with warnings as errors,
-CSharpier, every test, pack, shellcheck, gitleaks.
+suwgate (`suwgate check`, `just check`, the same in CI) with the profiles `dotnet` and `database` of `suwgate.yml`: the repository guards
+(comments, escape hatches, docs paths, the map, hooks, banned and unused NuGet packages, connection strings, migrations), build with
+warnings as errors, CSharpier, every test, the acceptance criteria, shellcheck and gitleaks, plus the kit's own step: pack every package
+and check it gives a `.nupkg` and a `.snupkg` and depends on no suwgate package.
 
-Each line is a build rule or a test; its message says the fix.
-
-- Build: analyzers `latest-all`, warnings are errors, code style enforced in the build.
-- Banned APIs (`BannedSymbols.txt`): `DateTime.Now`/`UtcNow`, blocking on tasks, `Thread.Sleep`, `Console`, `Activator`, reflection discovery, `Type.GetType(string)`, Newtonsoft.
-- Escape hatches (`NoPragmaTests`, `EscapeHatchTests`): no `#pragma warning disable`, no `dynamic`, no null-forgiving `!`.
-- Comments: none in any code or config file, only the tool directives AGENTS.md lists ("No comments"). C# `CommentsTests` (Roslyn);
-  shell, YAML, ignore files, `.editorconfig` and justfiles `HashCommentsTests`; MSBuild and XML `XmlCommentsTests`; JSON `JsonCommentsTests`.
-- The edit hook (`HookGuardEditTests`): an agent cannot change the gate or a lockfile, and files of another project are never this project's gate.
-
-## Disabled analyzer rules, and why
-
-| Rule | Where | Why |
-| --- | --- | --- |
-| IDE0055 | all C# | formatting is CSharpier's job; two formatters would fight |
-| IDE0130 (on, as an error) | all C# | a namespace is its folder path; set on its own so tuning the Style category can never switch it off |
-| CA2007 | all C# | `ConfigureAwait(false)` matters under a synchronization context; ASP.NET Core and the test runner have none |
-| IDE0058 | all C# | builder APIs (`services.AddX()`) return themselves for chaining; discarding each with `_ =` hides the code |
-| IDE0045, IDE0046 | all C# | they rewrite if/else into conditional expressions even when that nests ternaries or buries a throw |
-| CA1032 | all C# | the standard exception constructor set is for exceptions others rethrow; ours are thrown once, with a message |
-| CA1707, CA1515 | tests | test names are sentences (`The_kit_tells_its_package_version`); xUnit needs public classes |
-| RS0030 | generated code under obj | xUnit's generated entry point blocks on the task once; it is not ours to change |
+- The profile `database` applies because `Suwbackkit.Postgres` runs migrations: its guards keep the test migrations named and unchanged and the
+  connection strings on `127.0.0.1`. Its `database-up` step has nothing to start: the tests start PostgreSQL with Testcontainers, so
+  the compose file the profile asks for is an exception in `suwgate.yml`.
+- The build rules, the banned APIs and the analyzer settings come from `Suwgate.Architecture`; the kit adds none of its own.
+- The test project `Suwbackkit.Gate` runs the .NET guards that fit a library: build settings, project references (`layers.json`), escape hatches, one
+  type per file, interfaces with two implementations, nothing obsolete, no unused types, forbidden and unique type names, migration
+  script names. The layer and endpoint guards are for a layered server, which the kit is not.
 
 ## Why some settings are as they are
 
 - NuGet: `nuget.config` clears every source but nuget.org: with a second source central package management raises NU1507, and
   warnings as errors turn it into a failed build.
-- Build workers: `Directory.Build.rsp` (`-nodeReuse:false`) and the variables the gate exports leave no MSBuild workers running after a build.
+- Build workers: `Directory.Build.rsp` (`-nodeReuse:false`) leaves no MSBuild workers running after a build.
 - Line endings: `.gitattributes` keeps LF everywhere, never normalises binaries, and marks the lockfiles as generated.
-- CI pins every action by its commit; the step's name carries the version the commit is. The gate's tools are installed in the
-  runner's temp folder, because the repository guards count every untracked file as part of the repository.
-- `ServerKit.Version` is how an app logs which kit version it runs.
-- `Suwbackkit.Postgres` drops the `SELECT 1` the apps ran on every connection they opened: Npgsql advises against checking a connection
+- CI pins every action, and suwgate's reusable workflow, by its commit; the step's name carries the version the commit is.
+- An app logs which kit version it runs with `ServerKit.Version`.
+- The package `Suwbackkit.Postgres` drops the `SELECT 1` the apps ran on every connection they opened: Npgsql advises against checking a connection
   on every open (a round trip each time, and still a race with the server) and offers `Keepalive` instead, which pings idle connections
   and drops the dead ones ([Npgsql FAQ](https://www.npgsql.org/doc/faq.html#broken_connection_from_pool)). With nothing left to wrap,
   the apps' `Pool` gave way to the `NpgsqlDataSource` itself.

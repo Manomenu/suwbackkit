@@ -4,15 +4,15 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 default:
     @just --list --unsorted
 
-# The whole gate: build with analyzers, csharpier, tests, pack, shellcheck, gitleaks (the same CI runs)
+# The whole gate (suwgate check): guards, build, csharpier, tests, pack, criteria, shellcheck, gitleaks; the same CI runs
 [group('maintenance')]
 check:
-    @./tests/Suwbackkit.Gate/scripts/check.sh
+    @pnpm exec suwgate check
 
-# The quick gate: build, csharpier and the repository guards (what the Claude Code Stop hook runs)
+# The quick gate (suwgate check --quick): the guards and what changed since master; the Claude Code Stop hook runs it
 [group('maintenance')]
 check-quick:
-    @./tests/Suwbackkit.Gate/scripts/check.sh --quick
+    @pnpm exec suwgate check --quick
 
 # Format the code with CSharpier
 [group('maintenance')]
@@ -25,9 +25,10 @@ pack:
     rm -rf artifacts/packages
     dotnet pack Suwbackkit.slnx -c Release
 
-# Install tools and packages from the lockfiles, and enable the git hooks
+# Install suwgate, the tools and the packages from the lockfiles, and enable the git hooks
 [group('maintenance')]
 sync:
     git config core.hooksPath .githooks
+    pnpm install --frozen-lockfile
     dotnet tool restore
     dotnet restore Suwbackkit.slnx
