@@ -33,17 +33,17 @@ flowchart LR
 - `src/` — one folder per package; everything under it is packed (`src/Directory.Build.props` holds the package metadata). Each package has its own `README.md`, which nuget.org shows.
 - `tests/` — one xUnit v3 test project per package (`<Package>.Tests`), plus `Suwbackkit.Gate`: the .NET guards of `Suwgate.Architecture` and `Suwgate.Database` run on the kit.
 - `docs/` — this file and the specs: drafts in `draft/spec/`, built features in `visual/spec/`.
-- `.github/workflows/ci.yml` — the gate (suwgate's reusable workflow) on every push and pull request, and packing and publishing on a version tag.
+- `.github/workflows/ci.yml` — the gate (suwgate's reusable workflow) on every push and pull request, and on a version tag packing (suwgate's reusable NuGet release workflow) and publishing (this file's own job).
 - `.claude/` — the committed Claude Code settings: `suwgate hook stop` runs the quick gate after a turn, `suwgate hook guard-edit` protects the gate and the generated files (`ALLOW_GATE_EDIT=1 claude` lifts the first).
 - `.githooks/` — `pre-commit` runs `suwgate hook pre-commit` (gitleaks on what is staged, then the quick gate); `just sync` enables it.
 - `.config/` — `dotnet-tools.json`: the pinned CSharpier.
-- `.vscode/` — recommended extensions, formatter, file nesting and tasks that run the gate. No style rules: they live in `.editorconfig` and `.csharpierrc.json`.
+- `.vscode/` — recommended extensions, formatter, file nesting and tasks that run the gate. No style rules: they live in `.editorconfig`, where CSharpier reads its width too.
 
 Files at the root: `suwgate.yml` (the gate: profiles, the pack step, exceptions with their reasons), `layers.json` (which project may
 reference which and see whose internals), `package.json`, `pnpm-lock.yaml` and `pnpm-workspace.yaml` (the suwgate CLI, the only npm
 package), `Directory.Build.props` (the target framework, warnings as errors, lock files, the `Suwgate.Architecture` build defaults,
 nothing packable by default), `Directory.Build.rsp` (no idle MSBuild workers), `Directory.Packages.props` (every package version, once,
-with transitive pinning), `.editorconfig` (whitespace only), `global.json`, `nuget.config`, `.gitattributes`, `.gitignore`.
+with transitive pinning), `.editorconfig` (whitespace and CSharpier's width), `global.json`, `nuget.config`, `.gitattributes`, `.gitignore`.
 
 ## The packages
 
@@ -80,15 +80,16 @@ before the first tag, `0.1.0-alpha.0.<height>` (`MinVerMinimumMajorMinor` 0.1).
 - All packages share one version and one tag (`v*`), released together: the simplest scheme while the kit is small and its packages move together.
   When one package needs its own cadence, MinVer's documented monorepo setup applies: a `MinVerTagPrefix` per project (`server-v`, `cli-v`)
   with `MinVerIgnoreHeight`.
-- MinVer needs the full history: the pack job checks out with `fetch-depth: 0` (suwgate's gate workflow does too).
+- MinVer needs the full history: suwgate's reusable NuGet release workflow, which the pack job calls, checks out with `fetch-depth: 0` and the tags (its gate workflow does too).
 
 ## Publishing
 
-On a pushed tag `v*`, after the gate passes, the `pack` job of `ci.yml` packs every package with the full history, and the `publish` job
+On a pushed tag `v*`, after the gate passes, the `pack` job of `ci.yml` calls suwgate's reusable NuGet release workflow, which packs every
+package with the full history and keeps them as the artifact `nupkg`, and the `publish` job
 pushes them to nuget.org with **NuGet trusted publishing**: GitHub issues the job an OIDC token, NuGet's login action exchanges it for an
 API key valid one hour, and no long-lived key is stored anywhere. Before pushing, it checks that every package carries exactly the tag's
-version. Both jobs stay in `ci.yml`, not in a reusable workflow of suwgate: the nuget.org policy names this workflow file, and only
-the publish job holds `id-token: write`.
+version. The publish job stays in `ci.yml`, not in a reusable workflow of suwgate: the nuget.org policy names this workflow file, and only
+the publish job holds `id-token: write`; packing needs no token, so it is suwgate's.
 
 The job does not run until the owner sets it up, so a tag without this setup publishes nothing:
 
@@ -109,9 +110,9 @@ and check it gives a `.nupkg` and a `.snupkg` and depends on no suwgate package.
   connection strings on `127.0.0.1`. Its `database-up` step has nothing to start: the tests start PostgreSQL with Testcontainers, so
   the compose file the profile asks for is an exception in `suwgate.yml`.
 - The build rules, the banned APIs and the analyzer settings come from `Suwgate.Architecture`; the kit adds none of its own.
-- The test project `Suwbackkit.Gate` runs the .NET guards that fit a library: build settings, project references (`layers.json`), escape hatches, one
-  type per file, interfaces with two implementations, nothing obsolete, no unused types, forbidden and unique type names, migration
-  script names. The layer and endpoint guards are for a layered server, which the kit is not.
+- The test project `Suwbackkit.Gate` runs every .NET guard of the two profiles in one test (`SuwgateGuards.VerifyAll`, given the two
+  packages' assemblies and its own), and the `dotnet-test` step fails when one did not run. `guards.skip` in `suwgate.yml` leaves out,
+  with their reasons, the two that are for a layered server, which the kit is not: endpoints and every-project-guarded.
 
 ## Why some settings are as they are
 

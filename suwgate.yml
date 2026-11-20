@@ -23,6 +23,12 @@ steps:
             exit 1
           fi
         done
+guards:
+  skip:
+    - guard: architecture/endpoints
+      reason: a kit maps no endpoints of its own; MapServerDefaults maps the health probes into the app that calls it, whose gate checks them
+    - guard: architecture/every-project-guarded
+      reason: each package is one flat namespace with no layers to order, so there is nothing to list in layers.json; project-references still checks every project against it
 exceptions:
   - guard: required-files
     target: compose.yaml

@@ -9,13 +9,13 @@ importers:
   .:
     devDependencies:
       '@maniumek/suwgate':
-        specifier: 0.1.1
-        version: 0.1.1
+        specifier: 0.3.0
+        version: 0.3.0
 
 packages:
 
-  '@maniumek/suwgate@0.1.1':
-    resolution: {integrity: sha512-/dZ+mRzczyuHEI1gYT1fErk+QlZNH7hjIAgqfo0Ib7gtgslFkBR/7HCqvB81kxouPaxxm0ofsC70ZfuVlEepMg==}
+  '@maniumek/suwgate@0.3.0':
+    resolution: {integrity: sha512-BUlsOd+3UOe6eApHxcWg/U/bYSsRXJ3NrsOvsfl+hOUgZwJ893WHYkRDuJCI4HITNKxK0MTsAhYKH5AoVP9SNA==}
     engines: {node: '>=24'}
     hasBin: true
     peerDependencies:
@@ -59,7 +59,7 @@ packages:
 
 snapshots:
 
-  '@maniumek/suwgate@0.1.1':
+  '@maniumek/suwgate@0.3.0':
     dependencies:
       ajv: 8.20.0
       yaml: 2.9.1
