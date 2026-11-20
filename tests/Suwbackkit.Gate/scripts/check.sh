@@ -69,7 +69,7 @@ run_step() {
 
 build_all() { (cd "$ROOT" && dotnet build Suwbackkit.slnx -c Release --nologo -v quiet); }
 
-format_all() { (cd "$ROOT" && dotnet tool restore >/dev/null && dotnet csharpier check .); }
+format_all() { (cd "$ROOT" && dotnet csharpier check .); }
 
 test_all() { (cd "$ROOT" && dotnet test --solution Suwbackkit.slnx -c Release --no-build --no-progress); }
 
@@ -121,6 +121,11 @@ else
 fi
 
 GATE_START=$SECONDS
+if ! (cd "$ROOT" && dotnet tool restore >"$LOGS/tools.log" 2>&1); then
+    echo "check.sh: dotnet tool restore failed; the steps run in parallel need the dotnet CLI set up and the tools restored first:" >&2
+    tail -n "$FAILURE_LINES" "$LOGS/tools.log" >&2
+    exit 1
+fi
 PIDS=()
 if [ "$QUICK" -eq 1 ]; then
     (
