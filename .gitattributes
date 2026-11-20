@@ -1,0 +1,14 @@
+* text=auto eol=lf
+
+*.docx binary
+*.xlsx binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.woff2 binary
+*.nupkg binary
+*.snupkg binary
+
+**/packages.lock.json linguist-generated=true

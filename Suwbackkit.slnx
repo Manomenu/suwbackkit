@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Suwbackkit.Server/Suwbackkit.Server.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Suwbackkit.Server.Tests/Suwbackkit.Server.Tests.csproj" />
+    <Project Path="tests/Suwbackkit.Gate/Suwbackkit.Gate.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,21 @@
+{
+    "editor.formatOnSave": true,
+    "[csharp]": { "editor.defaultFormatter": "csharpier.csharpier-vscode" },
+    "dotnet.defaultSolution": "Suwbackkit.slnx",
+    "dotnet.backgroundAnalysis.analyzerDiagnosticsScope": "fullSolution",
+    "dotnet.backgroundAnalysis.compilerDiagnosticsScope": "fullSolution",
+    "dotnet.testWindow.useTestingPlatformProtocol": true,
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true,
+        "**/TestResults": true,
+        "artifacts": true
+    },
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.expand": false,
+    "explorer.fileNesting.patterns": {
+        "README.md": "AGENTS.md, CLAUDE.md, TODO.md, LICENSE, justfile, .editorconfig, .gitignore, .gitattributes",
+        "Suwbackkit.slnx": "global.json, nuget.config, BannedSymbols.txt, Directory.Build.props, Directory.Build.rsp, Directory.Packages.props, .csharpierrc.json",
+        "*.csproj": "packages.lock.json, README.md"
+    }
+}

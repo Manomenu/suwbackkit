@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Suwbackkit.Server</RootNamespace>
+    <PackageId>Suwbackkit.Server</PackageId>
+    <Description>Shared server defaults for the ASP.NET Core backends of Manomenu's apps.</Description>
+  </PropertyGroup>
+</Project>
