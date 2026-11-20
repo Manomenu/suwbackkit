@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -25,7 +26,7 @@ internal sealed class TestApp : IAsyncDisposable
     public Task<HttpResponseMessage> GetAsync(string path) =>
         Client.GetAsync(new Uri(path, UriKind.Relative), TestContext.Current.CancellationToken);
 
-    public static async Task<TestApp> StartAsync(Action<WebApplicationBuilder>? configure = null)
+    public static async Task<TestApp> StartAsync(Action<WebApplicationBuilder>? configure = null, Action<IEndpointRouteBuilder>? map = null)
     {
         var logs = new CapturedLogs();
         var builder = WebApplication.CreateBuilder();
@@ -37,6 +38,7 @@ internal sealed class TestApp : IAsyncDisposable
         app.MapServerDefaults();
         app.MapGroup("/api").MapHealthStatus();
         app.MapGet("/api/fail", () => FailOnPurpose());
+        map?.Invoke(app);
         app.MapOpenApi();
         await app.StartAsync(TestContext.Current.CancellationToken);
         return new TestApp(app, logs);

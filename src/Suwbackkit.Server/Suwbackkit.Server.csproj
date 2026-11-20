@@ -2,7 +2,7 @@
   <PropertyGroup>
     <RootNamespace>Suwbackkit.Server</RootNamespace>
     <PackageId>Suwbackkit.Server</PackageId>
-    <Description>Server defaults for ASP.NET Core backends: JSON console logging, ProblemDetails with traceId, OpenAPI 3.1, health checks.</Description>
+    <Description>Server defaults for ASP.NET Core backends: JSON console logging, ProblemDetails with traceId, OpenAPI 3.1 with schemas that say what the JSON always holds, health checks.</Description>
     <PackageTags>$(PackageTags);problemdetails;openapi;healthchecks</PackageTags>
   </PropertyGroup>
 
