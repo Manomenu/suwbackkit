@@ -1,2 +1,2 @@
 minimumReleaseAgeExclude:
-  - '@maniumek/suwgate@0.4.0'
+  - '@maniumek/suwgate'
