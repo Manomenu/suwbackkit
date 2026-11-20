@@ -40,10 +40,10 @@ flowchart LR
 - `.vscode/` — recommended extensions, formatter, file nesting and tasks that run the gate. No style rules: they live in `.editorconfig`, where CSharpier reads its width too.
 
 Files at the root: `suwgate.yml` (the gate: profiles, the pack step, exceptions with their reasons), `layers.json` (which project may
-reference which and see whose internals), `package.json`, `pnpm-lock.yaml` and `pnpm-workspace.yaml` (the suwgate CLI, the only npm
-package), `Directory.Build.props` (the target framework, warnings as errors, lock files, the `Suwgate.Architecture` build defaults,
-nothing packable by default), `Directory.Build.rsp` (no idle MSBuild workers), `Directory.Packages.props` (every package version, once,
-with transitive pinning), `.editorconfig` (whitespace and CSharpier's width), `global.json`, `nuget.config`, `.gitattributes`, `.gitignore`.
+reference which and see whose internals; each package is one flat namespace, its layers `["."]`, so a sub-namespace fails),
+`package.json`, `pnpm-lock.yaml` and `pnpm-workspace.yaml` (the suwgate CLI, the only npm package), `Directory.Build.props` (the target
+framework, warnings as errors, lock files, the `Suwgate.Architecture` build defaults, nothing packable by default), `Directory.Build.rsp`
+(no idle MSBuild workers), `Directory.Packages.props` (every package version, once, with transitive pinning), `.editorconfig` (whitespace and CSharpier's width), `global.json`, `nuget.config`, `.gitattributes`, `.gitignore`.
 
 ## The packages
 
@@ -112,7 +112,7 @@ and check it gives a `.nupkg` and a `.snupkg` and depends on no suwgate package.
 - The build rules, the banned APIs and the analyzer settings come from `Suwgate.Architecture`; the kit adds none of its own.
 - The test project `Suwbackkit.Gate` runs every .NET guard of the two profiles in one test (`SuwgateGuards.VerifyAll`, given the two
   packages' assemblies and its own), and the `dotnet-test` step fails when one did not run. `guards.skip` in `suwgate.yml` leaves out,
-  with their reasons, the two that are for a layered server, which the kit is not: endpoints and every-project-guarded.
+  with its reason, the one that is for a server, which the kit is not: endpoints.
 
 ## Why some settings are as they are
 

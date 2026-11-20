@@ -9,8 +9,9 @@ that use it, and every published version stays forever.
 ## Commands
 
 - For people: a recipe in `justfile` with a one-line description; `just` lists them.
-- For agents: suwgate, configured in `suwgate.yml`: `pnpm exec suwgate check --quick` while working, `pnpm exec suwgate check`
-  before calling a change done. A recipe only calls it. `suwgate --help` describes every command.
+- For agents: suwgate, configured in `suwgate.yml`: `pnpm exec suwgate check --quick` while working, and
+  `pnpm exec suwgate step <step> [-- <tool args>]` runs one step (`suwgate step` lists them); `pnpm exec suwgate check` before
+  calling a change done. A recipe only calls it. `suwgate --help` describes every command.
 
 ## Git
 
