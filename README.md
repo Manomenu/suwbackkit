@@ -4,7 +4,7 @@ Shared .NET building blocks for the backends of our apps, as NuGet packages. Che
 
 | Package | What it gives an app |
 | --- | --- |
-| [Suwbackkit.Server](src/Suwbackkit.Server/README.md) | `AddServerDefaults()` and `MapServerDefaults()`: JSON console logging, ProblemDetails with `traceId`, OpenAPI 3.1, health checks (`/health`, `/alive`), and `MapHealthStatus()` for the `/api/health` the contracts already publish |
+| [Suwbackkit.Server](src/Suwbackkit.Server/README.md) | `AddServerDefaults()` and `MapServerDefaults()`: JSON console logging, ProblemDetails with `traceId`, OpenAPI 3.1, health checks (`/health`, `/alive`), `MapHealthStatus()` for the `/api/health` the contracts already publish, and `AddContractSchemas()`: OpenAPI schemas that say what the JSON always holds |
 | [Suwbackkit.Postgres](src/Suwbackkit.Postgres/README.md) | `AddDatabase()`: one `NpgsqlDataSource`, grate migrations on start, a database health check |
 
 What comes next is in [TODO.md](TODO.md), why it is built this way in [docs/architecture.md](docs/architecture.md).

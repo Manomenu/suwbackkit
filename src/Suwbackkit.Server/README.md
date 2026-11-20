@@ -12,6 +12,12 @@ Server defaults for the ASP.NET Core backends of Manomenu's apps, in two calls, 
   app's project already names a version there. An app adds its own options with another `AddOpenApi(...)` call.
 - **Health checks**: `/health` runs every check (503 when one fails), `/alive` only the liveness ones (the process answers);
   both stay out of the OpenAPI document. Other packages add their checks with `AddHealthChecks()`, as `Suwbackkit.Postgres` does.
+- **Contract schemas** (opt-in): `AddOpenApi(options => options.AddContractSchemas())` makes every schema say what the JSON always
+  holds, so the types an app generates from the document (openapi-typescript) need no `?` or `| null` where the server never leaves
+  a value out: a property the server always writes and never as `null` (a get-only property of a non-null reference type, which
+  ASP.NET Core leaves optional and nullable) is required and not nullable; a union's discriminator (`[JsonPolymorphic]`) is required in
+  each of its variants; and `null` is no value of an enum (ASP.NET Core adds it to an enum used only as a nullable property, whose
+  property already says `null`).
 - **`/api/health` in the contract**: `MapHealthStatus()` on a route group maps `GET <group>/health`, answering `{"status":"ok"}`, or
   503 ProblemDetails naming the failed checks.
 
@@ -27,6 +33,12 @@ var app = builder.Build();
 app.MapServerDefaults();
 app.MapGroup("/api").MapHealthStatus();
 app.Run();
+```
+
+With the contract schemas, and the app's own OpenAPI options beside them:
+
+```csharp
+builder.Services.AddOpenApi(options => options.AddContractSchemas());
 ```
 
 Call `MapServerDefaults()` right after `Build()`: it puts the exception handler first in the pipeline.
