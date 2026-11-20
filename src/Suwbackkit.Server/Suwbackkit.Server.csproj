@@ -2,6 +2,20 @@
   <PropertyGroup>
     <RootNamespace>Suwbackkit.Server</RootNamespace>
     <PackageId>Suwbackkit.Server</PackageId>
-    <Description>Shared server defaults for the ASP.NET Core backends of Manomenu's apps.</Description>
+    <Description>Server defaults for ASP.NET Core backends: JSON console logging, ProblemDetails with traceId, OpenAPI 3.1, health checks.</Description>
+    <PackageTags>$(PackageTags);problemdetails;openapi;healthchecks</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="buildTransitive/Suwbackkit.Server.targets" Pack="true" PackagePath="buildTransitive/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Suwbackkit.Server.Tests" />
+  </ItemGroup>
 </Project>

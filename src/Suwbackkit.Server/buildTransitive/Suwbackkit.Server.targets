@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup Condition="!$(OpenApiGenerateDocumentsOptions.Contains('--openapi-version'))">
+    <OpenApiGenerateDocumentsOptions>$(OpenApiGenerateDocumentsOptions) --openapi-version OpenApi3_1</OpenApiGenerateDocumentsOptions>
+  </PropertyGroup>
+</Project>

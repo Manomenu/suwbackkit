@@ -40,6 +40,19 @@ Files at the root: `Directory.Build.props` (strict compiler and analyzers, nothi
 (no idle MSBuild workers), `Directory.Packages.props` (every package version, once, with transitive pinning),
 `BannedSymbols.txt` (APIs the build refuses, each with what to use instead), `.editorconfig`, `global.json`, `nuget.config`, `.gitattributes`, `.gitignore`.
 
+## The packages
+
+- `Suwbackkit.Server` follows .NET Aspire's ServiceDefaults: one `AddServerDefaults()` on the builder, one `MapServerDefaults()` on the app.
+  Aspire ships it as a project inside each solution; here it is a NuGet package, so a fix reaches every app with a version bump.
+  Unlike Aspire, `/health` and `/alive` are mapped in every environment, because the apps run them as container probes.
+- `Suwbackkit.Postgres` is its own package, so an app without a database pulls in neither Npgsql nor grate; it does not depend on
+  `Suwbackkit.Server`, it only adds a check to `AddHealthChecks()`, which both share through ASP.NET Core. Dapper stays the app's choice.
+- Both reference the ASP.NET Core shared framework (`FrameworkReference Microsoft.AspNetCore.App`): every app using them is an ASP.NET Core app.
+- The public API is only what an app calls; the rest is internal and tested through `InternalsVisibleTo`.
+- The tests that need PostgreSQL start it with Testcontainers (`postgres:17.11`, the image the apps' compose files pin). Without Docker
+  they are skipped with a message that says how to run them; with `CI` set the missing Docker fails the run instead, so CI never passes
+  without them.
+
 ## Packaging
 
 Following the .NET library guidance and the NuGet docs:
@@ -113,4 +126,13 @@ Each line is a build rule or a test; its message says the fix.
 - Line endings: `.gitattributes` keeps LF everywhere, never normalises binaries, and marks the lockfiles as generated.
 - CI pins every action by its commit; the step's name carries the version the commit is. The gate's tools are installed in the
   runner's temp folder, because the repository guards count every untracked file as part of the repository.
-- `ServerKit.Version` exists because a package cannot be empty; it is also how an app logs which kit version it runs.
+- `ServerKit.Version` is how an app logs which kit version it runs.
+- `Suwbackkit.Postgres` drops the `SELECT 1` the apps ran on every connection they opened: Npgsql advises against checking a connection
+  on every open (a round trip each time, and still a race with the server) and offers `Keepalive` instead, which pings idle connections
+  and drops the dead ones ([Npgsql FAQ](https://www.npgsql.org/doc/faq.html#broken_connection_from_pool)). With nothing left to wrap,
+  the apps' `Pool` gave way to the `NpgsqlDataSource` itself.
+- OpenAPI 3.1 is pinned twice: in `OpenApiOptions` for the document served at run time, and through the package's
+  `buildTransitive` targets for the document written at build time, because `GetDocument.Insider` ignores `OpenApiOptions` and follows only
+  `--openapi-version`. The build-time document is the contract the apps commit, and .NET 11 would make it 3.2.
+- The `traceId` in ProblemDetails is overwritten with `Activity.Current.TraceId` (32 hex characters): ASP.NET Core's default is the whole
+  W3C id (`00-<trace>-<span>-<flags>`), while the logs' scope carries the trace id alone, and the two must match to find a response in the logs.

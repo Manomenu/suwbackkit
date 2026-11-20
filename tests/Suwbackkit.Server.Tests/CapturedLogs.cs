@@ -1,0 +1,67 @@
+using Microsoft.Extensions.Logging;
+
+namespace Suwbackkit.Server.Tests;
+
+internal sealed record CapturedLog(string Category, LogLevel Level, string Message, string? TraceId);
+
+internal sealed class CapturedLogs : ILoggerProvider, ISupportExternalScope
+{
+    private readonly List<CapturedLog> entries = [];
+    private IExternalScopeProvider scopes = new LoggerExternalScopeProvider();
+
+    public IReadOnlyList<CapturedLog> Entries
+    {
+        get
+        {
+            lock (entries)
+            {
+                return [.. entries];
+            }
+        }
+    }
+
+    public void SetScopeProvider(IExternalScopeProvider scopeProvider) => scopes = scopeProvider;
+
+    public ILogger CreateLogger(string categoryName) => new Logger(this, categoryName);
+
+    public void Dispose() { }
+
+    private string? CurrentTraceId()
+    {
+        string? traceId = null;
+        scopes.ForEachScope(
+            (scope, _) =>
+            {
+                if (scope is IEnumerable<KeyValuePair<string, object>> pairs)
+                {
+                    traceId ??= pairs.Where(pair => pair.Key == "TraceId").Select(pair => pair.Value.ToString()).FirstOrDefault();
+                }
+            },
+            0
+        );
+        return traceId;
+    }
+
+    private sealed class Logger(CapturedLogs owner, string category) : ILogger
+    {
+        public IDisposable? BeginScope<TState>(TState state)
+            where TState : notnull => owner.scopes.Push(state);
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter
+        )
+        {
+            var entry = new CapturedLog(category, logLevel, formatter(state, exception), owner.CurrentTraceId());
+            lock (owner.entries)
+            {
+                owner.entries.Add(entry);
+            }
+        }
+    }
+}

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Suwbackkit.Postgres</RootNamespace>
+    <PackageId>Suwbackkit.Postgres</PackageId>
+    <Description>PostgreSQL for ASP.NET Core backends: an Npgsql data source, grate migrations on start, and a health check.</Description>
+    <PackageTags>$(PackageTags);postgresql;npgsql;grate;migrations</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Npgsql" />
+    <PackageReference Include="grate.postgresql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Suwbackkit.Postgres.Tests" />
+  </ItemGroup>
+</Project>
