@@ -1,3 +1,4 @@
+using System.Diagnostics.Metrics;
 using Npgsql;
 
 namespace Suwbackkit.Postgres.Tests;
@@ -15,13 +16,51 @@ public sealed class DataSourceTests(TestDatabase database)
             victim = connection.ProcessID;
         }
         Assert.Equal(true, await TestDatabase.ScalarAsync(database.ConnectionString, $"SELECT pg_terminate_backend({victim})"));
-        await Task.Delay(TimeSpan.FromSeconds(3), cancellation);
+        using var ceiling = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+        ceiling.CancelAfter(TimeSpan.FromSeconds(30));
+        await UntilThePoolHoldsNoConnection(dataSource, ceiling.Token);
 
         await using var fresh = await dataSource.OpenConnectionAsync(cancellation);
         await using var probe = new NpgsqlCommand("SELECT 1", fresh);
 
         Assert.Equal(1, await probe.ExecuteScalarAsync(cancellation));
         Assert.NotEqual(victim, fresh.ProcessID);
+    }
+
+    private static async Task UntilThePoolHoldsNoConnection(NpgsqlDataSource dataSource, CancellationToken cancellation)
+    {
+        var counts = new List<int>();
+        using var listener = new MeterListener();
+        listener.InstrumentPublished = (instrument, subscriber) =>
+        {
+            if (instrument is { Meter.Name: "Npgsql", Name: "db.client.connection.count" })
+            {
+                subscriber.EnableMeasurementEvents(instrument);
+            }
+        };
+        listener.SetMeasurementEventCallback<int>(
+            (_, count, tags, _) =>
+            {
+                foreach (var tag in tags)
+                {
+                    if (tag is { Key: "db.client.connection.pool.name" } && Equals(tag.Value, dataSource.ConnectionString))
+                    {
+                        counts.Add(count);
+                    }
+                }
+            }
+        );
+        listener.Start();
+        while (true)
+        {
+            counts.Clear();
+            listener.RecordObservableInstruments();
+            if (counts.Count > 0 && counts.Sum() == 0)
+            {
+                return;
+            }
+            await Task.Delay(TimeSpan.FromMilliseconds(50), cancellation);
+        }
     }
 
     [Fact]
