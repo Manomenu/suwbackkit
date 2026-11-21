@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Suwbackkit.Testing;
 
 namespace Suwbackkit.Server.Tests;
 
@@ -26,12 +27,16 @@ internal sealed class TestApp : IAsyncDisposable
     public Task<HttpResponseMessage> GetAsync(string path) =>
         Client.GetAsync(new Uri(path, UriKind.Relative), TestContext.Current.CancellationToken);
 
-    public static async Task<TestApp> StartAsync(Action<WebApplicationBuilder>? configure = null, Action<IEndpointRouteBuilder>? map = null)
+    public static async Task<TestApp> StartAsync(
+        Action<WebApplicationBuilder>? configure = null,
+        Action<IEndpointRouteBuilder>? map = null,
+        bool contractSchemas = true
+    )
     {
         var logs = new CapturedLogs();
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
-        builder.AddServerDefaults();
+        builder.AddServerDefaults(contractSchemas);
         builder.Services.AddSingleton<ILoggerProvider>(logs);
         configure?.Invoke(builder);
         var app = builder.Build();

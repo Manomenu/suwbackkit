@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="../../src/Suwbackkit.Postgres/Suwbackkit.Postgres.csproj" />
     <ProjectReference Include="../../src/Suwbackkit.Server/Suwbackkit.Server.csproj" />
+    <ProjectReference Include="../../src/Suwbackkit.Testing/Suwbackkit.Testing.csproj" />
   </ItemGroup>
 
   <ItemGroup>
