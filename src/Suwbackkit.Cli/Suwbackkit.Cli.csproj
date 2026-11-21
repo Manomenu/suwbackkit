@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Suwbackkit.Cli</RootNamespace>
+    <PackageId>Suwbackkit.Cli</PackageId>
+    <Description>The skeleton of a .NET command line that talks to a Suwbackkit server: the server address from named sources, the server's refusals read, a web page opened, and the command tree walked.</Description>
+    <PackageTags>suwbackkit;cli;system.commandline</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" />
+  </ItemGroup>
+</Project>

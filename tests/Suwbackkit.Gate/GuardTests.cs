@@ -1,3 +1,4 @@
+using Suwbackkit.Cli;
 using Suwbackkit.Postgres;
 using Suwbackkit.Server;
 using Suwbackkit.Testing;
@@ -13,7 +14,13 @@ public sealed class GuardTests
         SuwgateGuards.VerifyAll(
             new GuardInputs
             {
-                Production = [typeof(ServerKit).Assembly, typeof(Migrator).Assembly, typeof(TestDatabases).Assembly],
+                Production =
+                [
+                    typeof(ServerAddress).Assembly,
+                    typeof(ServerKit).Assembly,
+                    typeof(Migrator).Assembly,
+                    typeof(TestDatabases).Assembly,
+                ],
                 Tests = [typeof(GuardTests).Assembly],
             },
             new DatabaseProfile()

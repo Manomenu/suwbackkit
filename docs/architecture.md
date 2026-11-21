@@ -56,7 +56,13 @@ framework, warnings as errors, lock files, the `Suwgate.Architecture` build defa
   test framework, so an app's fixture keeps its own skipping and lifetime; it depends on Npgsql, not on `Suwbackkit.Postgres`. Its
   refusal of a database whose name lacks the word `test` is the rule every app's test database already followed (`<app>_test`, suwgate's
   `<app>_test_<checkout>`), turned into a guard, so a test run can never drop a development database.
-- All three reference the ASP.NET Core shared framework (`FrameworkReference Microsoft.AspNetCore.App`): every app using them is an ASP.NET Core app.
+- `Server`, `Postgres` and `Testing` reference the ASP.NET Core shared framework (`FrameworkReference Microsoft.AspNetCore.App`): every app using them is an ASP.NET Core app.
+- The package `Suwbackkit.Cli` is the skeleton of an app's command line, taken from the twins in suwagcms and suwageval: the server
+  address from named sources, the client side of the refusal format, `--open`, the command tree. It references System.CommandLine and
+  not ASP.NET Core, because a CLI ships as a .NET tool without the web framework. What the two CLIs do differently (the root command,
+  wrong use, help, exit codes, JSON output, configuration files, a typed or untyped client) stayed in the apps. The apps' SDKs share
+  no code (an agent's endpoints, a bot's runtime), so there is no SDK package. The route table of "every route has a command" stays in
+  each app's server tests too: the kit gives it `MappedRoutes` (`Testing`, which knows ASP.NET Core) and `CommandTree` (`Cli`).
 - The public API is only what an app calls; the rest is internal and tested through `InternalsVisibleTo`.
 - The tests that need PostgreSQL start it with Testcontainers (`postgres:17.11`, the image the apps' compose files pin). Without Docker
   they are skipped with a message that says how to run them; with `CI` set the missing Docker fails the run instead, so CI never passes

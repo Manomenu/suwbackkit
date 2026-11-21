@@ -1,11 +1,13 @@
 {
   "projects": {
+    "Suwbackkit.Cli": { "layers": ["."] },
     "Suwbackkit.Server": { "layers": ["."], "internalsVisibleTo": ["Suwbackkit.Server.Tests"] },
     "Suwbackkit.Postgres": { "layers": ["."], "internalsVisibleTo": ["Suwbackkit.Postgres.Tests"] },
     "Suwbackkit.Testing": { "layers": ["."], "internalsVisibleTo": ["Suwbackkit.Testing.Tests"] },
+    "Suwbackkit.Cli.Tests": { "references": ["Suwbackkit.Cli"] },
     "Suwbackkit.Server.Tests": { "references": ["Suwbackkit.Server", "Suwbackkit.Testing"] },
     "Suwbackkit.Postgres.Tests": { "references": ["Suwbackkit.Postgres"] },
     "Suwbackkit.Testing.Tests": { "references": ["Suwbackkit.Testing"] },
-    "Suwbackkit.Gate": { "references": ["Suwbackkit.Postgres", "Suwbackkit.Server", "Suwbackkit.Testing"] }
+    "Suwbackkit.Gate": { "references": ["Suwbackkit.Cli", "Suwbackkit.Postgres", "Suwbackkit.Server", "Suwbackkit.Testing"] }
   }
 }

@@ -18,6 +18,9 @@ the app's fixture keeps its own skipping and lifetime.
 - **`CapturedLogs`**, an `ILoggerProvider` that keeps every entry in memory as a `CapturedLog` (category, level, message, and the
   `TraceId` of the scope it was written in, the one ASP.NET Core opens per request), so a test can assert that a request's error
   was logged with the trace id the response carries.
+- **`MappedRoutes.Of(app.Services)`** lists every route a started test server maps, one `METHOD /pattern` each (`GET /api/bots/{bot}`),
+  route constraints stripped (`{id:guid}` is `{id}`), in ordinal order: the input of a test that every route has its CLI command or
+  says why not, which walks the CLI with `Suwbackkit.Cli`'s `CommandTree`.
 
 ## Usage
 
