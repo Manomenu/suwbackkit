@@ -33,7 +33,7 @@ flowchart LR
 - `src/` — one folder per package; everything under it is packed (`src/Directory.Build.props` holds the package metadata). Each package has its own `README.md`, which nuget.org shows.
 - `tests/` — one xUnit v3 test project per package (`<Package>.Tests`), plus `Suwbackkit.Gate`: the .NET guards of `Suwgate.Architecture` and `Suwgate.Database` run on the kit.
 - `docs/` — this file and the specs: drafts in `draft/spec/`, built features in `visual/spec/`.
-- `.github/workflows/ci.yml` — the gate (suwgate's reusable workflow) on every push and pull request, and on a version tag packing (suwgate's reusable NuGet release workflow) and publishing (this file's own job).
+- `.github/workflows/ci.yml` — the gate and the consumer test (the template's gate on these packages), both suwgate's reusable workflow, on every push and pull request; on a version tag packing and publishing, which wait for both.
 - `.claude/` — the committed Claude Code settings: `suwgate hook stop` runs the quick gate after a turn, `suwgate hook guard-edit` protects the gate and the generated files (`ALLOW_GATE_EDIT=1 claude` lifts the first).
 - `.githooks/` — `pre-commit` runs `suwgate hook pre-commit` (gitleaks on what is staged, then the quick gate); `just sync` enables it.
 - `.config/` — `dotnet-tools.json`: the pinned CSharpier.
@@ -94,7 +94,7 @@ before the first tag, `0.1.0-alpha.0.<height>` (`MinVerMinimumMajorMinor` 0.1).
 
 ## Publishing
 
-On a pushed tag `v*`, after the gate passes, the `pack` job of `ci.yml` calls suwgate's reusable NuGet release workflow, which packs every
+On a pushed tag `v*`, after the gate and the consumer test pass, the `pack` job of `ci.yml` calls suwgate's reusable NuGet release workflow, which packs every
 package with the full history and keeps them as the artifact `nupkg`, and the `publish` job
 pushes them to nuget.org with **NuGet trusted publishing**: GitHub issues the job an OIDC token, NuGet's login action exchanges it for an
 API key valid one hour, and no long-lived key is stored anywhere. Before pushing, it checks that every package carries exactly the tag's

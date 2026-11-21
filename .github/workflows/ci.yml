@@ -18,14 +18,26 @@ jobs:
       contents: read
       statuses: write
       pull-requests: read
-    uses: Manomenu/suwgate/.github/workflows/gate.yml@e05e6a8a0387033d0a009db1e4b69b2471568df0
+    uses: Manomenu/suwgate/.github/workflows/gate.yml@d65cfac87ac011edb06a12f4b02d6c3ea45f942a
+
+  consumer:
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: read
+    uses: Manomenu/suwgate/.github/workflows/gate.yml@d65cfac87ac011edb06a12f4b02d6c3ea45f942a
+    with:
+      consumer: Manomenu/solid-dotnet-app-tpl
+      package: nuget
+      working-directory: Myapp.Web
+      browser: chromium
 
   pack:
-    needs: [gate]
+    needs: [gate, consumer]
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
       contents: read
-    uses: Manomenu/suwgate/.github/workflows/release-nuget.yml@e05e6a8a0387033d0a009db1e4b69b2471568df0
+    uses: Manomenu/suwgate/.github/workflows/release-nuget.yml@d65cfac87ac011edb06a12f4b02d6c3ea45f942a
     with:
       pack-target: Suwbackkit.slnx
 
