@@ -17,9 +17,14 @@ public static class Refusals
         return Problem(status, title, detail, Extensions(code));
     }
 
-    public static ProblemHttpResult Refuse<TCode, TMistake>(int status, string title, TCode code, IReadOnlyList<TMistake> mistakes)
+    public static ProblemHttpResult Refuse<TCode, TMistakeCode>(
+        int status,
+        string title,
+        TCode code,
+        IReadOnlyList<Mistake<TMistakeCode>> mistakes
+    )
         where TCode : notnull
-        where TMistake : Mistake<TCode>
+        where TMistakeCode : notnull
     {
         Require(title, nameof(title));
         ArgumentNullException.ThrowIfNull(mistakes);
@@ -46,7 +51,12 @@ public static class Refusals
 
     public static RouteHandlerBuilder ProducesRefusal<TCode, TMistake>(this RouteHandlerBuilder builder, int status)
         where TCode : notnull
-        where TMistake : Mistake<TCode> =>
+        where TMistake : Mistake<TCode> => builder.ProducesRefusal<TCode, TCode, TMistake>(status);
+
+    public static RouteHandlerBuilder ProducesRefusal<TCode, TMistakeCode, TMistake>(this RouteHandlerBuilder builder, int status)
+        where TCode : notnull
+        where TMistakeCode : notnull
+        where TMistake : Mistake<TMistakeCode> =>
         builder.WithMetadata(new ProducesResponseTypeMetadata(status, typeof(Refusal<TCode, TMistake>), [ContentType]));
 
     internal static string DetailOf(int mistakes) =>

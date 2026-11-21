@@ -10,6 +10,11 @@ the app's fixture keeps its own skipping and lifetime.
   `myapp_test_knowledge`, `myapp_seed_test` pass; `myapp`, `postgres`, `latest`, `myapp_tests` do not), before they connect, with an
   `InvalidOperationException` that names the database and the fix. A connection string pointed at an app's own database by mistake
   (a stray `TEST_CONNECTION_STRING`) can never drop it.
+- **`LinkedWorktree.RefuseSharedDatabase()`**, called first in the fixture, throws when `TEST_CONNECTION_STRING` is not set and the
+  tests run in a linked git worktree (its `.git` is a file pointing into the main checkout's worktrees folder): the fixture would otherwise drop and recreate
+  the main checkout's test database under the tests running there. The message says to run them after
+  `eval "$(<app>.Web/node_modules/.bin/suwgate dev checkout-env)"`, which names the checkout's own databases, or to run the gate.
+  `RefuseSharedDatabase(testConnectionString, testDirectory)` takes both from the caller, for a test of the fixture.
 - **`CapturedLogs`**, an `ILoggerProvider` that keeps every entry in memory as a `CapturedLog` (category, level, message, and the
   `TraceId` of the scope it was written in, the one ASP.NET Core opens per request), so a test can assert that a request's error
   was logged with the trace id the response carries.
@@ -30,6 +35,7 @@ public sealed class TestDatabase : IAsyncLifetime
 
     public async ValueTask InitializeAsync()
     {
+        LinkedWorktree.RefuseSharedDatabase();
         await TestDatabases.RecreateAsync(ConnectionString);
         await Migrator.MigrateAsync(ConnectionString, Migrator.DefaultDirectory);
     }

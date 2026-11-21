@@ -463,7 +463,7 @@ flowchart TB
     <li><code>AC-refusal-format-2</code> A refusal with mistakes carries each of them with a code, a message and a fix, none empty, plus <code>at</code> when the app gives a location; the detail names how many mistakes there are and says to fix each as its fix says.</li>
     <li><code>AC-refusal-format-3</code> A mistake's app-specific members reach the client unchanged, next to the shared ones.</li>
     <li><code>AC-refusal-format-4</code> An endpoint that declares it can refuse has the refusal shape in the app's OpenAPI document: <code>code</code> required, <code>mistakes</code> optional, and each mistake with <code>code</code>, <code>message</code> and <code>fix</code> required.</li>
-    <li><code>AC-refusal-format-5</code> When an app gives its own set of codes, the OpenAPI document lists them as the enum of <code>code</code> and of <code>mistakes[].code</code>, so a new code is a new enum value in the contract.</li>
+    <li><code>AC-refusal-format-5</code> When an app gives its own set of codes, the OpenAPI document lists them as the enum of <code>code</code> and of <code>mistakes[].code</code>, or a second set as the enum of <code>mistakes[].code</code> when the app's mistakes have codes of their own, so a new code is a new enum value in the contract.</li>
     <li><code>AC-refusal-format-6</code> A failure that is not a refusal (an unhandled exception, the database down) carries no <code>code</code>.</li>
   </ul>
 </section>
