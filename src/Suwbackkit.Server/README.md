@@ -5,7 +5,9 @@ Server defaults for the ASP.NET Core backends of Manomenu's apps, in two calls, 
 - **Logging**: JSON on the console, with scopes and UTC timestamps; `Microsoft.AspNetCore` at `Warning`. These are the lowest-priority
   configuration values, so `appsettings.json` or environment variables override any of them (`Logging__Console__FormatterName=simple`).
 - **ProblemDetails**: every error is `application/problem+json` with a `traceId` (the W3C trace id the logs carry in their scope),
-  from unhandled exceptions (`UseExceptionHandler`) and from empty error responses such as 404 (`UseStatusCodePages`).
+  from unhandled exceptions (`UseExceptionHandler`) and from empty error responses such as 404 (`UseStatusCodePages`). A request
+  body the endpoint cannot read stays a 400, also in Development, where minimal APIs throw `BadHttpRequestException` instead of
+  answering 400 themselves.
 - **OpenAPI**: `AddOpenApi` with the document pinned to OpenAPI 3.1, so a newer .NET does not change the contract on its own. The pin
   holds for the document served at run time and for the one `Microsoft.Extensions.ApiDescription.Server` writes at build time: the build
   ignores `OpenApiOptions`, so the package also adds `--openapi-version OpenApi3_1` to `OpenApiGenerateDocumentsOptions`, unless the

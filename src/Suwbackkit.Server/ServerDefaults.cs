@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -34,10 +35,14 @@ public static class ServerDefaults
             options.CustomizeProblemDetails = context =>
                 context.ProblemDetails.Extensions["traceId"] = Activity.Current?.TraceId.ToString() ?? context.HttpContext.TraceIdentifier
         );
+        builder.Services.Configure<ExceptionHandlerOptions>(options => options.StatusCodeSelector = StatusCodeOf);
         builder.Services.AddOpenApi(options => options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1);
         builder.Services.AddHealthChecks().AddCheck("self", () => HealthCheckResult.Healthy(), [LiveTag]);
         return builder;
     }
+
+    private static int StatusCodeOf(Exception error) =>
+        error is BadHttpRequestException badRequest ? badRequest.StatusCode : StatusCodes.Status500InternalServerError;
 
     public static WebApplication MapServerDefaults(this WebApplication app)
     {
