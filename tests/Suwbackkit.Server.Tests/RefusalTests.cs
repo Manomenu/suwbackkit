@@ -35,6 +35,18 @@ public sealed class RefusalTests
         Push,
     }
 
+    [JsonConverter(typeof(JsonStringEnumConverter<CheckCode>))]
+    internal enum CheckCode
+    {
+        [JsonStringEnumMemberName("step.missing")]
+        StepMissing,
+
+        [JsonStringEnumMemberName("step.loop")]
+        StepLoop,
+    }
+
+    internal sealed record CheckMistake(CheckCode Code, string Message, string Fix, Stage Stage) : Mistake<CheckCode>(Code, Message, Fix);
+
     internal sealed record Related(string Kind, string Id);
 
     internal sealed record NoteMistake(NoteCode Code, string Message, string Fix, Stage Stage, IReadOnlyList<Related> Related)
@@ -67,6 +79,18 @@ public sealed class RefusalTests
                 () => Refusals.Refuse(StatusCodes.Status422UnprocessableEntity, "The note cannot be saved", NoteCode.Invalid, TwoMistakes)
             )
             .ProducesRefusal<NoteCode, NoteMistake>(StatusCodes.Status422UnprocessableEntity);
+        routes
+            .MapPatch(
+                "/api/notes/7",
+                () =>
+                    Refusals.Refuse(
+                        StatusCodes.Status422UnprocessableEntity,
+                        "The note cannot be checked",
+                        NoteCode.Invalid,
+                        [new CheckMistake(CheckCode.StepLoop, "Step 2 leads back to step 1.", "End the loop at a step.", Stage.Save)]
+                    )
+            )
+            .ProducesRefusal<NoteCode, CheckCode, CheckMistake>(StatusCodes.Status422UnprocessableEntity);
         routes
             .MapDelete(
                 "/api/notes/7",
@@ -252,6 +276,24 @@ public sealed class RefusalTests
         Assert.Equal(codes, EnumOf(document, refusal?["properties"]?["code"]));
         Assert.Equal(codes, EnumOf(document, mistake?["properties"]?["code"]));
         Assert.Empty(EnumOf(document, ResponseSchema(document, "delete", 403)?["properties"]?["code"]));
+    }
+
+    [Fact]
+    [Trait("criterion", "AC-refusal-format-5")]
+    public async Task Mistakes_with_codes_of_their_own_have_their_own_enum_beside_the_refusals_codes()
+    {
+        var document = await DocumentAsync();
+        var refusal = ResponseSchema(document, "patch", 422);
+        var mistake = Resolved(document, refusal?["properties"]?["mistakes"]?["items"]);
+        var (_, body) = await SendAsync(HttpMethod.Patch);
+
+        Assert.Equal(
+            ["note.invalid", "note.stale", "note.titleMissing", "note.linkBroken"],
+            EnumOf(document, refusal?["properties"]?["code"])
+        );
+        Assert.Equal(["step.missing", "step.loop"], EnumOf(document, mistake?["properties"]?["code"]));
+        Assert.Equal("note.invalid", body.GetProperty("code").GetString());
+        Assert.Equal("step.loop", body.GetProperty("mistakes")[0].GetProperty("code").GetString());
     }
 
     [Theory]

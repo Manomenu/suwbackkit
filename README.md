@@ -6,7 +6,7 @@ Shared .NET building blocks for the backends of our apps, as NuGet packages. Che
 | --- | --- |
 | [Suwbackkit.Server](src/Suwbackkit.Server/README.md) | `AddServerDefaults()` and `MapServerDefaults()`: JSON console logging, ProblemDetails with `traceId`, OpenAPI 3.1, health checks (`/health`, `/alive`), `MapHealthStatus()` for the `/api/health` the contracts already publish, OpenAPI schemas that say what the JSON always holds (on by default, `contractSchemas: false` opts out), and `Refusals.Refuse()` with `ProducesRefusal<TCode>()`: the shared refusal format and its schema |
 | [Suwbackkit.Postgres](src/Suwbackkit.Postgres/README.md) | `AddDatabase()`: one `NpgsqlDataSource`, grate migrations on start, a database health check |
-| [Suwbackkit.Testing](src/Suwbackkit.Testing/README.md) | for test projects: `TestDatabases` recreates and drops a PostgreSQL test database, refusing any whose name lacks the word `test`; `CapturedLogs` keeps the logs a test server writes, with their trace id |
+| [Suwbackkit.Testing](src/Suwbackkit.Testing/README.md) | for test projects: `TestDatabases` recreates and drops a PostgreSQL test database, refusing any whose name lacks the word `test`; `LinkedWorktree.RefuseSharedDatabase()` refuses to run a linked git worktree's tests on the main checkout's database; `CapturedLogs` keeps the logs a test server writes, with their trace id |
 
 What comes next is in [TODO.md](TODO.md), why it is built this way in [docs/architecture.md](docs/architecture.md).
 

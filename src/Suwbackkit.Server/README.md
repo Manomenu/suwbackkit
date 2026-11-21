@@ -109,6 +109,10 @@ static Results<Ok<Note>, ProblemHttpResult> Save(...) =>
 - A mistake with more to say derives from `Mistake<TCode>` (`record NoteMistake(NoteCode Code, string Message, string Fix, Stage Stage)
   : Mistake<NoteCode>(Code, Message, Fix)`); pass a list of it to `Refuse` and declare `.ProducesRefusal<NoteCode, NoteMistake>(status)`,
   and its members travel and are documented next to the shared ones.
+- Mistakes may have codes of their own, a second enum beside the refusal's: `Refuse(status, title, NoteCode.Invalid, checkMistakes)`
+  with `record CheckMistake(CheckCode Code, …) : Mistake<CheckCode>(…)`, declared as
+  `.ProducesRefusal<NoteCode, CheckCode, CheckMistake>(status)`. The contract then lists `NoteCode` as the enum of `code` and
+  `CheckCode` as the enum of `mistakes[].code`.
 - In the contract the shape is `Refusal<TCode, TMistake>`: `code`, `title`, `detail`, `status`, `type` and `traceId` required,
   `mistakes` optional, and each mistake's `code`, `message` and `fix` required.
 
