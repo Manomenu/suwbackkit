@@ -52,7 +52,11 @@ framework, warnings as errors, lock files, the `Suwgate.Architecture` build defa
   Unlike Aspire, `/health` and `/alive` are mapped in every environment, because the apps run them as container probes.
 - PostgreSQL lives in a package of its own, `Suwbackkit.Postgres`, so an app without a database pulls in neither Npgsql nor grate; it does not depend on
   `Suwbackkit.Server`, it only adds a check to `AddHealthChecks()`, which both share through ASP.NET Core. Dapper stays the app's choice.
-- Both reference the ASP.NET Core shared framework (`FrameworkReference Microsoft.AspNetCore.App`): every app using them is an ASP.NET Core app.
+- The package `Suwbackkit.Testing` is for test projects only: the test-database helper and the log capture the apps copied. It knows no
+  test framework, so an app's fixture keeps its own skipping and lifetime; it depends on Npgsql, not on `Suwbackkit.Postgres`. Its
+  refusal of a database whose name lacks the word `test` is the rule every app's test database already followed (`<app>_test`, suwgate's
+  `<app>_test_<checkout>`), turned into a guard, so a test run can never drop a development database.
+- All three reference the ASP.NET Core shared framework (`FrameworkReference Microsoft.AspNetCore.App`): every app using them is an ASP.NET Core app.
 - The public API is only what an app calls; the rest is internal and tested through `InternalsVisibleTo`.
 - The tests that need PostgreSQL start it with Testcontainers (`postgres:17.11`, the image the apps' compose files pin). Without Docker
   they are skipped with a message that says how to run them; with `CI` set the missing Docker fails the run instead, so CI never passes

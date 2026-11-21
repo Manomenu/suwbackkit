@@ -2,8 +2,10 @@
   "projects": {
     "Suwbackkit.Server": { "layers": ["."], "internalsVisibleTo": ["Suwbackkit.Server.Tests"] },
     "Suwbackkit.Postgres": { "layers": ["."], "internalsVisibleTo": ["Suwbackkit.Postgres.Tests"] },
-    "Suwbackkit.Server.Tests": { "references": ["Suwbackkit.Server"] },
+    "Suwbackkit.Testing": { "layers": ["."], "internalsVisibleTo": ["Suwbackkit.Testing.Tests"] },
+    "Suwbackkit.Server.Tests": { "references": ["Suwbackkit.Server", "Suwbackkit.Testing"] },
     "Suwbackkit.Postgres.Tests": { "references": ["Suwbackkit.Postgres"] },
-    "Suwbackkit.Gate": { "references": ["Suwbackkit.Postgres", "Suwbackkit.Server"] }
+    "Suwbackkit.Testing.Tests": { "references": ["Suwbackkit.Testing"] },
+    "Suwbackkit.Gate": { "references": ["Suwbackkit.Postgres", "Suwbackkit.Server", "Suwbackkit.Testing"] }
   }
 }

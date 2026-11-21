@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Suwbackkit.Testing</RootNamespace>
+    <PackageId>Suwbackkit.Testing</PackageId>
+    <Description>Test helpers for ASP.NET Core backends: recreate and drop a PostgreSQL test database (only one whose name says test), and capture the logs a test server writes.</Description>
+    <PackageTags>$(PackageTags);testing;postgresql;logging</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Npgsql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Suwbackkit.Testing.Tests" />
+  </ItemGroup>
+</Project>

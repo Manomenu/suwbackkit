@@ -540,6 +540,12 @@
           "Microsoft.AspNetCore.OpenApi": "[10.0.12, )"
         }
       },
+      "suwbackkit.testing": {
+        "type": "Project",
+        "dependencies": {
+          "Npgsql": "[10.0.3, )"
+        }
+      },
       "grate.postgresql": {
         "type": "CentralTransitive",
         "requested": "[2.1.6, )",

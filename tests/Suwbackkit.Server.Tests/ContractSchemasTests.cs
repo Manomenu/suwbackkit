@@ -20,6 +20,19 @@ public sealed class ContractSchemasTests
     }
 
     [Fact]
+    public async Task Calling_them_again_as_alfusion_did_changes_nothing()
+    {
+        var once = await SchemasAsync(contractSchemas: true);
+        await using var server = await TestApp.StartAsync(
+            builder => builder.Services.AddOpenApi(options => options.AddContractSchemas()),
+            MapShelf
+        );
+        var json = await server.Client.GetStringAsync(new Uri("/openapi/v1.json", UriKind.Relative), TestContext.Current.CancellationToken);
+
+        Assert.True(JsonNode.DeepEquals(once, JsonNode.Parse(json)?["components"]?["schemas"]));
+    }
+
+    [Fact]
     public async Task A_property_that_may_be_null_stays_optional_and_nullable()
     {
         var shelf = (await SchemasAsync(contractSchemas: true))["Shelf"];
@@ -47,7 +60,7 @@ public sealed class ContractSchemasTests
     }
 
     [Fact]
-    public async Task Without_them_the_schemas_stay_as_aspnet_core_writes_them()
+    public async Task An_app_that_opts_out_gets_the_schemas_as_aspnet_core_writes_them()
     {
         var schemas = await SchemasAsync(contractSchemas: false);
 
@@ -69,16 +82,7 @@ public sealed class ContractSchemasTests
 
     private static async Task<JsonObject> SchemasAsync(bool contractSchemas)
     {
-        await using var server = await TestApp.StartAsync(
-            builder =>
-            {
-                if (contractSchemas)
-                {
-                    builder.Services.AddOpenApi(options => options.AddContractSchemas());
-                }
-            },
-            MapShelf
-        );
+        await using var server = await TestApp.StartAsync(map: MapShelf, contractSchemas: contractSchemas);
         var json = await server.Client.GetStringAsync(new Uri("/openapi/v1.json", UriKind.Relative), TestContext.Current.CancellationToken);
         return JsonNode.Parse(json)?["components"]?["schemas"]?.AsObject() ?? throw new InvalidOperationException(json);
     }

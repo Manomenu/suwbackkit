@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 
-namespace Suwbackkit.Server.Tests;
+namespace Suwbackkit.Testing;
 
-internal sealed class CapturedLogs : ILoggerProvider, ISupportExternalScope
+public sealed class CapturedLogs : ILoggerProvider, ISupportExternalScope
 {
     private readonly List<CapturedLog> entries = [];
     private IExternalScopeProvider scopes = new LoggerExternalScopeProvider();
