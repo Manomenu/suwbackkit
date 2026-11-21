@@ -18,13 +18,13 @@ that use it, and every published version stays forever.
 
 - **The main branch is `master`**, never `main`.
 - Work on a feature branch, never on `master`. Agents do not rewrite or discard history: no
-  amend, reset, rebase, stash, force-push or deleting an unmerged branch. Merging and releasing are the owner's.
+  amend, reset, rebase, stash, force-push or deleting an unmerged branch. An agent may merge a pull request whose CI is green, and release.
 - **A branch merged into `master` is deleted** right after the merge: local, remote and its worktree, with
   `git branch -d`, which refuses unmerged work. Needed again? Start a new one from `master`.
 - A change with a red gate is not committed: it stays in the working tree and the summary says why.
 - **One task, one branch.** Unrelated refactors, renames, version bumps and fixes go to their own
   branch or into `TODO.md`; say so once when you reach for one, and put it in if the owner confirms.
-- A release is a tag `v<major>.<minor>.<patch>` on `master`, pushed by the owner; agents never tag and never publish.
+- A release is a tag `v<major>.<minor>.<patch>` on `master`, which an agent may push once the commit's CI is green; only CI publishes.
 - Personal rules (how you commit, your tools) go in the gitignored `CLAUDE.local.md`, not here.
 
 ## Rules
