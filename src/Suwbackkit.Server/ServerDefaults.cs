@@ -43,8 +43,8 @@ public static class ServerDefaults
     {
         app.UseExceptionHandler();
         app.UseStatusCodePages();
-        app.MapHealthChecks("/health");
-        app.MapHealthChecks("/alive", new HealthCheckOptions { Predicate = check => check.Tags.Contains(LiveTag) });
+        app.MapHealthChecks("/health").AllowAnonymous();
+        app.MapHealthChecks("/alive", new HealthCheckOptions { Predicate = check => check.Tags.Contains(LiveTag) }).AllowAnonymous();
         return app;
     }
 }

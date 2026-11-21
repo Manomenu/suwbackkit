@@ -9,7 +9,8 @@ namespace Suwbackkit.Server;
 
 public static class HealthEndpoints
 {
-    public static RouteHandlerBuilder MapHealthStatus(this IEndpointRouteBuilder routes) => routes.MapGet("/health", Check);
+    public static RouteHandlerBuilder MapHealthStatus(this IEndpointRouteBuilder routes) =>
+        routes.MapGet("/health", Check).AllowAnonymous();
 
     private static async Task<Results<Ok<HealthStatus>, ProblemHttpResult>> Check(
         HealthCheckService health,

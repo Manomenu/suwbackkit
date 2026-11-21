@@ -1,5 +1,7 @@
 using System.Net;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -63,4 +65,18 @@ public sealed class HealthTests
 
     private static void Failing(Microsoft.AspNetCore.Builder.WebApplicationBuilder builder) =>
         builder.Services.AddHealthChecks().AddCheck("database", () => HealthCheckResult.Unhealthy(Failure));
+
+    [Theory]
+    [InlineData("/health")]
+    [InlineData("/alive")]
+    [InlineData("/api/health")]
+    public async Task Every_probe_answers_without_credentials_in_an_app_that_asks_for_them(string path)
+    {
+        await using var server = await TestApp.StartAsync();
+
+        var endpoints = server.Services.GetRequiredService<EndpointDataSource>().Endpoints.OfType<RouteEndpoint>();
+        var probe = Assert.Single(endpoints, endpoint => "/" + endpoint.RoutePattern.RawText?.TrimStart('/') == path);
+
+        Assert.NotNull(probe.Metadata.GetMetadata<IAllowAnonymous>());
+    }
 }
