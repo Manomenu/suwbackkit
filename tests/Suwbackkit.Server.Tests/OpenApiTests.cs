@@ -39,9 +39,8 @@ public sealed class OpenApiTests
     {
         var targets = XDocument.Load(Path.Combine(AppContext.BaseDirectory, "Suwbackkit.Server.targets"));
 
-        Assert.Contains(
-            targets.Descendants("OpenApiGenerateDocumentsOptions"),
-            options => options.Value.EndsWith("--openapi-version OpenApi3_1", StringComparison.Ordinal)
+        Assert.Contains(targets.Descendants("OpenApiGenerateDocumentsOptions"), options =>
+            options.Value.EndsWith("--openapi-version OpenApi3_1", StringComparison.Ordinal)
         );
     }
 

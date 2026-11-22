@@ -45,9 +45,8 @@ public sealed class ServerRefusalTests
 
         Assert.NotNull(refusal);
         Assert.Null(refusal.Code);
-        Assert.All(
-            refusal.Mistakes,
-            mistake => Assert.Equal((null, null, null, null), (mistake.Code, mistake.Message, mistake.Fix, mistake.At))
+        Assert.All(refusal.Mistakes, mistake =>
+            Assert.Equal((null, null, null, null), (mistake.Code, mistake.Message, mistake.Fix, mistake.At))
         );
     }
 

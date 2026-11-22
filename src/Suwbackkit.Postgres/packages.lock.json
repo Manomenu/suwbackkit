@@ -4,13 +4,13 @@
     "net10.0": {
       "grate.postgresql": {
         "type": "Direct",
-        "requested": "[2.1.6, )",
-        "resolved": "2.1.6",
-        "contentHash": "krNCVLocLaEKSWkeFVf6JA+MHhh0FnDwdVWQs2O9wvIU35wkyx8hNzUMfo/jJ3CCM6k0eP14e3E3QlADtXE4sg==",
+        "requested": "[2.3.0, )",
+        "resolved": "2.3.0",
+        "contentHash": "92BYUjLTjYsynuusC6YrCxsWYvbdxu24qm4lgcx1KRm2gZtYLs5l7j1VzlHVMGPjcep/V0oRn5HfAvxOK/OUQQ==",
         "dependencies": {
-          "Dapper": "2.1.79",
+          "Dapper": "2.1.89",
           "Npgsql": "10.0.3",
-          "grate.core": "2.1.6"
+          "grate.core": "2.3.0"
         }
       },
       "MinVer": {
@@ -21,15 +21,15 @@
       },
       "Npgsql": {
         "type": "Direct",
-        "requested": "[10.0.3, )",
-        "resolved": "10.0.3",
-        "contentHash": "7nb5YzXuvWWJxB0J8DiyL3we+X4FOctZrt0fIBnucOIaIevFEEwGQVZKtiu9olXdlNAK1eNgqSral6r/jlhI4w=="
+        "requested": "[10.0.4, )",
+        "resolved": "10.0.4",
+        "contentHash": "m2VCpcU9MKD8lLxTn+YaNIRWd+Gz3y/9wIaM+2ifDF24xZ2Kvvjx4CDB2BIgobr1Gj6a/gsdmfz1sQ+kmd7liw=="
       },
       "Suwgate.Architecture": {
         "type": "Direct",
-        "requested": "[0.3.0, )",
-        "resolved": "0.3.0",
-        "contentHash": "B5Tq71LjudDSA0XiGnOIdEdWNebf3nfiCbrp81dhHUeeJxwGmraqxFq5cLfr2NLmhYOnozwiR4tIH/yhN9B1Iw==",
+        "requested": "[0.4.0, )",
+        "resolved": "0.4.0",
+        "contentHash": "nYUYByAfD0Qv9rE4BZdvCEeRHQGkDELzUmnSAYtispDpLkoD1zZ/DUztbgQqtbvpGJ8oI3A7HlWg6XqmK+H8lA==",
         "dependencies": {
           "Microsoft.CodeAnalysis.BannedApiAnalyzers": "4.14.0",
           "Microsoft.CodeAnalysis.CSharp": "5.0.0",
@@ -44,15 +44,15 @@
       },
       "Dapper": {
         "type": "Transitive",
-        "resolved": "2.1.79",
-        "contentHash": "8YijbzgTfmqmQOnVNorYM6K++pxqnW3nJ4aC1sRHzxUA2CcuoJ9gsTem3kgBnPRMc38zZHl4Esb6hAezXIEEuw=="
+        "resolved": "2.1.89",
+        "contentHash": "1VjFE664wnxvuhlgP8kS4PeFFF4jqD3VkbIHW6Zlc52zuibgcz5ICnIHcQXlTp6pURpPNGLV0ZpNe5x9KePJnA=="
       },
       "grate.core": {
         "type": "Transitive",
-        "resolved": "2.1.6",
-        "contentHash": "cL4mXpJR4KgiOYJ/Vg2fD5GWHtjpwfb6Xp6HvkFrrcyTnJIe7x03ldufPXiYzFUelxwL2bmauk2zQfYMF9JNvQ==",
+        "resolved": "2.3.0",
+        "contentHash": "6IiV508j0ij7K/WZ/OitgtYmVd8Bbt37VfyuZ9ETiLcWFFYKXZUt+zpl8WMUQVrtq1iiHyniQOQLcg+3w4qefA==",
         "dependencies": {
-          "Dapper": "2.1.79"
+          "Dapper": "2.1.89"
         }
       },
       "JetBrains.Annotations": {
