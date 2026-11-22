@@ -29,6 +29,21 @@ public sealed class MigratorTests(TestDatabase database) : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Migrations_started_at_the_same_time_on_one_database_run_one_after_another()
+    {
+        Write("0001_counter.sql", "CREATE TABLE counter (x int); INSERT INTO counter VALUES (1);");
+
+        for (var round = 0; round < 3; round++)
+        {
+            var fresh = await database.CreateAsync();
+
+            await Task.WhenAll(Enumerable.Range(0, 4).Select(_ => Migrator.MigrateAsync(fresh, directory.FullName)));
+
+            Assert.Equal(1L, await TestDatabase.ScalarAsync(fresh, "SELECT count(*) FROM counter"));
+        }
+    }
+
+    [Fact]
     public async Task A_script_edited_after_it_ran_fails_the_migration()
     {
         Write("0001_counter.sql", "CREATE TABLE IF NOT EXISTS counter (x int);");
