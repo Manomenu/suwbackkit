@@ -4,25 +4,25 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup Label="gate">
-    <PackageVersion Include="Suwgate.Architecture" Version="0.3.0" />
-    <PackageVersion Include="Suwgate.Database" Version="0.3.0" />
+    <PackageVersion Include="Suwgate.Architecture" Version="0.4.0" />
+    <PackageVersion Include="Suwgate.Database" Version="0.4.0" />
   </ItemGroup>
   <ItemGroup Label="build">
     <PackageVersion Include="MinVer" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup Label="server">
-    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.15" />
   </ItemGroup>
   <ItemGroup Label="cli">
-    <PackageVersion Include="System.CommandLine" Version="2.0.13" />
+    <PackageVersion Include="System.CommandLine" Version="2.0.15" />
   </ItemGroup>
   <ItemGroup Label="postgres">
-    <PackageVersion Include="Npgsql" Version="10.0.3" />
-    <PackageVersion Include="grate.postgresql" Version="2.1.6" />
+    <PackageVersion Include="Npgsql" Version="10.0.4" />
+    <PackageVersion Include="grate.postgresql" Version="2.3.0" />
   </ItemGroup>
   <ItemGroup Label="tests">
-    <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.15" />
     <PackageVersion Include="Testcontainers.PostgreSql" Version="4.17.0" />
-    <PackageVersion Include="xunit.v3" Version="4.0.2" />
+    <PackageVersion Include="xunit.v3" Version="4.0.3" />
   </ItemGroup>
 </Project>

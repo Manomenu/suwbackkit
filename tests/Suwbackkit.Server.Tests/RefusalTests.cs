@@ -67,34 +67,28 @@ public sealed class RefusalTests
     private static void Map(IEndpointRouteBuilder routes)
     {
         routes
-            .MapPost(
-                "/api/notes/7",
-                () =>
-                    Refusals.Refuse(StatusCodes.Status409Conflict, "The note changed", NoteCode.Stale, "Read it again and save once more.")
+            .MapPost("/api/notes/7", () =>
+                Refusals.Refuse(StatusCodes.Status409Conflict, "The note changed", NoteCode.Stale, "Read it again and save once more.")
             )
             .ProducesRefusal<NoteCode>(StatusCodes.Status409Conflict);
         routes
-            .MapPut(
-                "/api/notes/7",
-                () => Refusals.Refuse(StatusCodes.Status422UnprocessableEntity, "The note cannot be saved", NoteCode.Invalid, TwoMistakes)
+            .MapPut("/api/notes/7", () =>
+                Refusals.Refuse(StatusCodes.Status422UnprocessableEntity, "The note cannot be saved", NoteCode.Invalid, TwoMistakes)
             )
             .ProducesRefusal<NoteCode, NoteMistake>(StatusCodes.Status422UnprocessableEntity);
         routes
-            .MapPatch(
-                "/api/notes/7",
-                () =>
-                    Refusals.Refuse(
-                        StatusCodes.Status422UnprocessableEntity,
-                        "The note cannot be checked",
-                        NoteCode.Invalid,
-                        [new CheckMistake(CheckCode.StepLoop, "Step 2 leads back to step 1.", "End the loop at a step.", Stage.Save)]
-                    )
+            .MapPatch("/api/notes/7", () =>
+                Refusals.Refuse(
+                    StatusCodes.Status422UnprocessableEntity,
+                    "The note cannot be checked",
+                    NoteCode.Invalid,
+                    [new CheckMistake(CheckCode.StepLoop, "Step 2 leads back to step 1.", "End the loop at a step.", Stage.Save)]
+                )
             )
             .ProducesRefusal<NoteCode, CheckCode, CheckMistake>(StatusCodes.Status422UnprocessableEntity);
         routes
-            .MapDelete(
-                "/api/notes/7",
-                () => Refusals.Refuse(StatusCodes.Status403Forbidden, "Not yours", "note.forbidden", "Ask its owner.")
+            .MapDelete("/api/notes/7", () =>
+                Refusals.Refuse(StatusCodes.Status403Forbidden, "Not yours", "note.forbidden", "Ask its owner.")
             )
             .ProducesRefusal<string>(StatusCodes.Status403Forbidden);
     }
